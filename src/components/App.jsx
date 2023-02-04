@@ -10,7 +10,9 @@ export class App extends Component {
     error: null,
   };
 
-  handleSubmit = () => {};
+  handleSubmit = request => {
+    this.setState({ request });
+  };
 
   render() {
     return (

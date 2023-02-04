@@ -11,9 +11,15 @@ import {
 } from './Searchbar.styled';
 
 const Searchbar = ({ onSubmit }) => {
+  const handleSubmit = e => {
+    e.preventDefault();
+    const { request } = e.target.elements;
+    onSubmit(request.value);
+  };
+
   return (
     <SearchbarBox>
-      <SearchForm>
+      <SearchForm onSubmit={handleSubmit}>
         <SearchFormButton type="submit">
           <span>
             <BsSearch />
@@ -23,8 +29,9 @@ const Searchbar = ({ onSubmit }) => {
 
         <SearchFormInput
           type="text"
+          name="request"
           autocomplete="off"
-          autofocus
+          autoFocus
           placeholder="Search images and photos"
         />
       </SearchForm>
