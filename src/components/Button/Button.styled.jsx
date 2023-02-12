@@ -1,5 +1,12 @@
 import styled from '@emotion/styled';
 
+export const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+`;
+
 export const LoadMoreButton = styled.button`
   padding: 8px 16px;
   border-radius: 2px;

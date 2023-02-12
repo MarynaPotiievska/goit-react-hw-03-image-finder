@@ -11,20 +11,28 @@ export class App extends Component {
   state = {
     images: [],
     request: '',
+    page: 1,
     isLoading: false,
     error: null,
     message: 'Please, enter your request',
   };
 
   handleSubmit = request => {
-    this.setState({ request });
+    this.setState({
+      request,
+      page: 1,
+    });
+  };
+
+  handleClick = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
   async componentDidUpdate(_, prevState) {
-    if (prevState.request !== this.state.request) {
+    const { request, page } = this.state;
+    if (prevState.request !== request || prevState.page !== page) {
       try {
-        const { request } = this.state;
-        let page = 1;
+        const { request, page } = this.state;
         this.setState(prevState => ({ isLoading: !prevState.isLoading }));
         const images = await fetchImages(request, page);
         if (images.length === 0) {
@@ -47,14 +55,14 @@ export class App extends Component {
   render() {
     const { images, error, message, isLoading } = this.state;
     return (
-      <div>
+      <AppWrapper>
         <Searchbar onSubmit={this.handleSubmit} />
         {isLoading && <Loader />}
         {error !== null && <p>{error}</p>}
         {error === null && images.length === 0 && <Message>{message}</Message>}
         {!isLoading && <ImageGallery images={images} />}
-        {/* {images.length !== 0 && <Button onClick={this.handleClick} />} */}
-      </div>
+        {images.length !== 0 && <Button onClick={this.handleClick} />}
+      </AppWrapper>
     );
   }
 }
