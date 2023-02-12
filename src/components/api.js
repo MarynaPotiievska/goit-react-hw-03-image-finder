@@ -11,7 +11,6 @@ export const fetchImages = async (request, page) => {
 		orientation: 'horizontal',
 		per_page: 12
 	}
-	});
-	// console.log(resp.data.hits);
+	});	
 	return resp.data.hits
 }
