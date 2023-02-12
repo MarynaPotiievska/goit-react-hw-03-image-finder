@@ -42,7 +42,6 @@ export class App extends Component {
     const { request, page } = this.state;
     if (prevState.request !== request || prevState.page !== page) {
       try {
-        const { request, page } = this.state;
         this.setState(prevState => ({ isLoading: !prevState.isLoading }));
         const images = await fetchImages(request, page);
         if (images.length === 0) {
@@ -51,7 +50,13 @@ export class App extends Component {
               'Sorry, there are no photos for you request. Please, try another one.',
           });
         }
-        this.setState({ images });
+        if (prevState.request !== request) {
+          this.setState({ images });
+        } else {
+          this.setState(prevState => ({
+            images: [...prevState.images, ...images],
+          }));
+        }
       } catch (error) {
         this.setState({
           error: 'Sorry, something went wrong. Please, try again.',
