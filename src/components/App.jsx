@@ -4,6 +4,7 @@ import { AppWrapper, Message } from './App.styled';
 import Button from './Button';
 import ImageGallery from './ImageGallery';
 import Loader from './Loader';
+import Modal from './Modal';
 
 import Searchbar from './Searchbar';
 
@@ -15,6 +16,8 @@ export class App extends Component {
     isLoading: false,
     error: null,
     message: 'Please, enter your request',
+    isModalOpen: false,
+    largeImageUrl: '',
   };
 
   handleSubmit = request => {
@@ -26,6 +29,13 @@ export class App extends Component {
 
   handleClick = () => {
     this.setState(prevState => ({ page: prevState.page + 1 }));
+  };
+
+  handleModalToggle = largeImageUrl => {
+    this.setState(prevState => ({
+      isModalOpen: !prevState.isModalOpen,
+      largeImageUrl,
+    }));
   };
 
   async componentDidUpdate(_, prevState) {
@@ -53,15 +63,24 @@ export class App extends Component {
   }
 
   render() {
-    const { images, error, message, isLoading } = this.state;
+    const { images, error, message, isLoading, isModalOpen, largeImageUrl } =
+      this.state;
     return (
       <AppWrapper>
         <Searchbar onSubmit={this.handleSubmit} />
         {isLoading && <Loader />}
-        {error !== null && <p>{error}</p>}
+        {error !== null && <Message>{error}</Message>}
         {error === null && images.length === 0 && <Message>{message}</Message>}
-        {!isLoading && <ImageGallery images={images} />}
+        {!isLoading && (
+          <ImageGallery images={images} modalToggle={this.handleModalToggle} />
+        )}
         {images.length !== 0 && <Button onClick={this.handleClick} />}
+        {isModalOpen && (
+          <Modal
+            largeImageUrl={largeImageUrl}
+            modalToggle={this.handleModalToggle}
+          />
+        )}
       </AppWrapper>
     );
   }
