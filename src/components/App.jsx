@@ -18,6 +18,7 @@ export class App extends Component {
     message: 'Please, enter your request',
     isModalOpen: false,
     largeImageUrl: '',
+    isLastPage: false,
   };
 
   handleSubmit = request => {
@@ -43,7 +44,8 @@ export class App extends Component {
     if (prevState.request !== request || prevState.page !== page) {
       try {
         this.setState(prevState => ({ isLoading: !prevState.isLoading }));
-        const images = await fetchImages(request, page);
+        const resp = await fetchImages(request, page);
+        const { totalHits, hits: images } = resp;
         if (images.length === 0) {
           this.setState({
             message:
@@ -51,11 +53,17 @@ export class App extends Component {
           });
         }
         if (prevState.request !== request) {
-          this.setState({ images });
+          this.setState({
+            images,
+            isLastPage: false,
+          });
         } else {
           this.setState(prevState => ({
             images: [...prevState.images, ...images],
           }));
+        }
+        if (Math.round(totalHits / 12) === page) {
+          this.setState({ isLastPage: true });
         }
       } catch (error) {
         this.setState({
@@ -68,8 +76,15 @@ export class App extends Component {
   }
 
   render() {
-    const { images, error, message, isLoading, isModalOpen, largeImageUrl } =
-      this.state;
+    const {
+      images,
+      error,
+      message,
+      isLoading,
+      isModalOpen,
+      largeImageUrl,
+      isLastPage,
+    } = this.state;
     return (
       <AppWrapper>
         <Searchbar onSubmit={this.handleSubmit} />
@@ -79,7 +94,9 @@ export class App extends Component {
         {!isLoading && (
           <ImageGallery images={images} modalToggle={this.handleModalToggle} />
         )}
-        {images.length !== 0 && <Button onClick={this.handleClick} />}
+        {images.length !== 0 && !isLastPage && (
+          <Button onClick={this.handleClick} />
+        )}
         {isModalOpen && (
           <Modal
             largeImageUrl={largeImageUrl}

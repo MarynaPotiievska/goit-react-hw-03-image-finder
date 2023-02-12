@@ -12,5 +12,5 @@ export const fetchImages = async (request, page='1') => {
 		per_page: 12
 	}
 	});	
-	return resp.data.hits
+	return resp.data
 }
