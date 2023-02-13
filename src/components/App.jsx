@@ -25,7 +25,7 @@ export class App extends Component {
     this.setState({
       request,
       page: 1,
-      image: [],
+      images: [],
     });
   };
 
