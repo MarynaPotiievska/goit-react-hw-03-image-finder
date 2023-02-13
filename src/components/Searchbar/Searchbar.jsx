@@ -14,6 +14,9 @@ const Searchbar = ({ onSubmit }) => {
   const handleSubmit = e => {
     e.preventDefault();
     const { request } = e.target.elements;
+    if (request.value.trim() === '') {
+      return alert('Please, enter your request');
+    }
     onSubmit(request.value);
   };
 

@@ -14,17 +14,18 @@ export class App extends Component {
     request: '',
     page: 1,
     isLoading: false,
+    totalHits: 0,
     error: null,
     message: 'Please, enter your request',
     isModalOpen: false,
     largeImageUrl: '',
-    isLastPage: false,
   };
 
   handleSubmit = request => {
     this.setState({
       request,
       page: 1,
+      image: [],
     });
   };
 
@@ -41,9 +42,12 @@ export class App extends Component {
 
   async componentDidUpdate(_, prevState) {
     const { request, page } = this.state;
+    if (!request) {
+      return;
+    }
     if (prevState.request !== request || prevState.page !== page) {
       try {
-        this.setState(prevState => ({ isLoading: !prevState.isLoading }));
+        this.setState({ isLoading: true });
         const resp = await fetchImages(request, page);
         const { totalHits, hits: images } = resp;
         if (images.length === 0) {
@@ -52,25 +56,16 @@ export class App extends Component {
               'Sorry, there are no photos for you request. Please, try another one.',
           });
         }
-        if (prevState.request !== request) {
-          this.setState({
-            images,
-            isLastPage: false,
-          });
-        } else {
-          this.setState(prevState => ({
-            images: [...prevState.images, ...images],
-          }));
-        }
-        if (Math.round(totalHits / 12) === page) {
-          this.setState({ isLastPage: true });
-        }
+        this.setState(prevState => ({
+          images: [...prevState.images, ...images],
+          totalHits,
+        }));
       } catch (error) {
         this.setState({
           error: 'Sorry, something went wrong. Please, try again.',
         });
       } finally {
-        this.setState(prevState => ({ isLoading: !prevState.isLoading }));
+        this.setState({ isLoading: false });
       }
     }
   }
@@ -83,26 +78,24 @@ export class App extends Component {
       isLoading,
       isModalOpen,
       largeImageUrl,
-      isLastPage,
+      totalHits,
     } = this.state;
+
+    const calcIsLastPage = images.length / totalHits;
     return (
       <AppWrapper>
         <Searchbar onSubmit={this.handleSubmit} />
-        {isLoading && <Loader />}
-        {error !== null && <Message>{error}</Message>}
-        {error === null && images.length === 0 && <Message>{message}</Message>}
-        {!isLoading && (
-          <ImageGallery images={images} modalToggle={this.handleModalToggle} />
-        )}
-        {images.length !== 0 && !isLastPage && (
-          <Button onClick={this.handleClick} />
-        )}
+        <ImageGallery images={images} modalToggle={this.handleModalToggle} />
+        {calcIsLastPage < 1 && <Button onClick={this.handleClick} />}
         {isModalOpen && (
           <Modal
             largeImageUrl={largeImageUrl}
             modalToggle={this.handleModalToggle}
           />
         )}
+        {isLoading && <Loader />}
+        {error !== null && <Message>{error}</Message>}
+        {error === null && images.length === 0 && <Message>{message}</Message>}
       </AppWrapper>
     );
   }

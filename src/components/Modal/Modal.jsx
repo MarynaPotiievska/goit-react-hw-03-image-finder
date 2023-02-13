@@ -9,21 +9,30 @@ class Modal extends Component {
     modalToggle: PropTypes.func.isRequired,
   };
 
-  onClose = e => {
-    if (e.code === 'Escape') {
-      this.props.modalToggle(this.props.largeImageUrl);
-      window.removeEventListener();
-    }
-  };
-
   componentDidMount() {
     window.addEventListener('keydown', this.onClose);
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onClose);
+  }
+
+  onClose = e => {
+    if (e.code === 'Escape') {
+      this.props.modalToggle(this.props.largeImageUrl);
+    }
+  };
+
+  onCloseByOverlay = e => {
+    if (e.target === e.currentTarget) {
+      this.props.modalToggle(this.props.largeImageUrl);
+    }
+  };
+
   render() {
-    const { largeImageUrl, modalToggle } = this.props;
+    const { largeImageUrl } = this.props;
     return (
-      <Overlay onClick={modalToggle}>
+      <Overlay onClick={this.onCloseByOverlay}>
         <ModalWindow>
           <img src={largeImageUrl} alt="LargeImage" />
         </ModalWindow>
